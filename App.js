@@ -1,54 +1,110 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, FlatList } from 'react-native';
-import React, { useState } from 'react';
+import { KeyboardAvoidingView, ImageBackground, StyleSheet, Text, View, FlatList, SafeAreaView, ScrollView, Platform, StatusBar, TextInput, TextComponent } from 'react-native';
+import React, { useState, useRef } from 'react';
+import Button from './component/Button.js';
+
 
 export default function App() {
- 
-const [sampleGoals, setSampleGoals] = useState([
+  const inputRef = useRef(null);
+  const [newGoal, setNewGoal] = useState('');
+  const [sampleGoals, setSampleGoals] = useState([
     { key: '1', title: "Faire les courses" },
     { key: '2', title: "Aller à la salle de sport 3 fois par semaine" },
-    { key: '3', title: "Acheter mon premier appartement"},
-    { key: '4', title:  "Perdre 5 kgs"},
+    { key: '3', title: "Acheter mon premier appartement" },
+    { key: '4', title: "Perdre 5 kgs" },
     { key: '5', title: "Gagner en productivité" },
-    { key: '6', title:  "Apprendre un nouveau langage" },
+    { key: '6', title: "Apprendre un nouveau langage" },
     { key: '7', title: "Faire une mission en freelance" },
     { key: '8', title: "Organiser un meetup autour de la tech" },
     { key: '9', title: "Faire un triathlon" },
   ]);
 
-  return (
-    <>
-      
-      <StatusBar style="auto"/>
-    
-      <View style={styles.container}>
-      <Text style={styles.text}>Open up App.js to start working on your app!</Text>
+  const handleAdd = () => {  
+    if(newGoal != ""){
+    const newGoalItem = { key: Date.now().toString(), title: newGoal };
+    const newGoals = [...sampleGoals, newGoalItem];
+    setSampleGoals(newGoals);
+    setNewGoal('')
+    inputRef.current.clear();
+    }
+  };
 
-      <FlatList
-        data={sampleGoals}
-        renderItem={({ item }) => <Text>{item.title}</Text>}
-        keyExtractor = {(item) => item.key}
-      />
-    </View>
-    </>
+  const handleRemove = (goalKey) =>{
+     const newGoals = sampleGoals.filter((goal)=> goal.key !== goalKey);
+     setSampleGoals(newGoals);
+  }
+
+  return (
+  <ImageBackground source={require('./assets/background.jpg')} style={styles.backgroundImage}>
+   <SafeAreaView style={styles.safeAreaView}>
+      <ScrollView>
+        <Text style={styles.title}>Ma liste des tâches à faire!</Text>
+        <FlatList
+          data={sampleGoals}
+          renderItem={({ item }) => <Text><Button stylesButton={styles.stylesButtonItem}>{item.title}</Button><Button handlePress={handleRemove} argumentFunction={item.key} stylesButton={styles.stylesButtonRemove}>&#x2715;</Button></Text>}
+          keyExtractor={(item) => item.key}
+          style={styles.containerlistContent}
+        />
+      <View style={styles.row}>
+        <TextInput style={styles.input}   ref={inputRef} placeholder={'Tâche à faire...'} onChangeText={newText => setNewGoal(newText)}/>
+        <Button handlePress={handleAdd} stylesButton={styles.stylesButtonAdd} >Ajouter</Button>
+      </View>
+      </ScrollView>
+    </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+
+  backgroundImage: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    resizeMode: 'cover',
   },
 
-  text: {
+  row:{
+    flexDirection: 'row'
+  },
+
+  safeAreaView: {
+    flex: 1,
+    marginTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+    margin:15,
+  },
+
+  title: {
     color: 'red',
     fontWeight: 'bold',
     marginBottom: 15,
+    textAlign: 'center',
+    fontSize: 25
   },
-});
 
+  containerlistContent: {
+    // flexGrow: 0,
+    marginBottom: 15,
+  },
+
+  input: {
+    borderWidth: 1,
+    padding: 10,
+    marginBottom: 10,
+    backgroundColor: 'white',
+  },
+ 
+  stylesButtonAdd: {
+    backgroundColor: '#007AFF',
+  },
+
+  stylesButtonItem: {
+    backgroundColor: '#6BB1E8',
+    width: '90%',
+  },
+
+  stylesButtonRemove:{
+    backgroundColor: '#007AFF',
+  }
+
+});
 
 
 
